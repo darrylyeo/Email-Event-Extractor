@@ -23,4 +23,4 @@ def extractEventDetails(emailFile):
 
 
 if __name__ == '__main__':
-	extractEventDetails(open('conf_emails/[GAMESNETWORK] G|A|M|E - Call For Papers N.8 - ‘Would you kindly?’_ Claiming Video Game Agency as Interdisciplinary Concept - DEADLINE 19 Jul 2019 - Ivan Girina <ivan.girina@BRUNEL.AC.UK> - 2019-05-30 0923.eml'))
+	extractEventDetails(open('conf_emails/1.eml'))
