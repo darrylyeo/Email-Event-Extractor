@@ -1,26 +1,43 @@
-import email, en_core_web_sm, nltk, re, spacy
+import eml_parser, en_core_web_sm, nltk, re, spacy, sys
 from collections import Counter
-
+from pyquery import PyQuery
 
 nlp = en_core_web_sm.load()
 
-
 def extractEventDetails(emailFile):
-	msg = email.message_from_file(emailFile)
+	email = eml_parser.EmlParser(include_raw_body=True).decode_email_bytes(emailFile.read())
 
-	subject = msg['Subject']
-	print('Subject:', subject)
+	for body in email['body']:
+		html = body['content']
+		pq = PyQuery(html)
 
-	contents = msg.get_payload()
-	print('Contents:')
-	print(contents)
+		textContent = pq('body').text()
+		print(textContent)
 
-	words = nltk.word_tokenize(contents)
+		# textNodes = pq('body').contents().filter(lambda i, node: node.nodeType == 3)
+		# print(textNodes)
+
+	# subject = msg['Subject']
+	# print('Subject:', subject)
+
+	# contents = [
+	# 	base64.b64decode(part.get_payload())
+	# 	for part in msg.walk()
+	# 	if part.get_content_type() == 'text/plain'
+	# ]
+	# print(dir(msg))
+	# contents = msg.get_body(preferencelist=('related', 'html', 'plain')).get_content()
+	# print('Contents:')
+	# print(contents)
+
+	# words = nltk.word_tokenize(contents)
 	# print(words)
 
-	doc = nlp(contents)
-	print((e.text, e.label_) for e in doc.ents)
+	# doc = nlp(contents)
+	# print([(e.text, e.label_) for e in doc.ents])
 
 
 if __name__ == '__main__':
-	extractEventDetails(open('conf_emails/1.eml'))
+	fileName = sys.argv[1]
+	with open(fileName, 'rb') as emailFile:
+		extractEventDetails(emailFile)
