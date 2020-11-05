@@ -1,5 +1,10 @@
 # Email-Event-Extractor
 
+## Install Dependencies
+```
+pip3 install eml_parser, nltk, spacy
+```
+
 ## Usage
 
 ```
