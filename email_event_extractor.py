@@ -1,6 +1,6 @@
-import email, en_core_web_sm, nltk, re, spacy
-from collections import Counter
-
+import email
+import en_core_web_sm
+import nltk
 
 nlp = en_core_web_sm.load()
 
