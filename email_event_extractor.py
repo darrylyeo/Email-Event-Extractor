@@ -5,36 +5,33 @@ from pyquery import PyQuery
 nlp = en_core_web_sm.load()
 
 def extractEventDetails(emailFile):
+	# Parse email
 	email = eml_parser.EmlParser(include_raw_body=True).decode_email_bytes(emailFile.read())
 
+	# Email subject
+	subject = email['header']['subject']
+	print('Subject:', subject)
+
+	# Email body
 	for body in email['body']:
+		# Parse HTML
 		html = body['content']
 		pq = PyQuery(html)
-
+		
+		# Get plain text from HTML
 		textContent = pq('body').text()
 		print(textContent)
-
 		# textNodes = pq('body').contents().filter(lambda i, node: node.nodeType == 3)
 		# print(textNodes)
 
-	# subject = msg['Subject']
-	# print('Subject:', subject)
+		# Use Spacy to find entities
+		doc = nlp(textContent)
+		print([(e.text, e.label_) for e in doc.ents])
 
-	# contents = [
-	# 	base64.b64decode(part.get_payload())
-	# 	for part in msg.walk()
-	# 	if part.get_content_type() == 'text/plain'
-	# ]
-	# print(dir(msg))
-	# contents = msg.get_body(preferencelist=('related', 'html', 'plain')).get_content()
-	# print('Contents:')
-	# print(contents)
+		# Use NLTK to tokenize contents
+		# words = nltk.word_tokenize(textContent)
+		# print(words)
 
-	# words = nltk.word_tokenize(contents)
-	# print(words)
-
-	# doc = nlp(contents)
-	# print([(e.text, e.label_) for e in doc.ents])
 
 
 if __name__ == '__main__':
