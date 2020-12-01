@@ -1,6 +1,7 @@
 import csv, eml_parser, en_core_web_sm, nltk, re, spacy, sys
 from collections import Counter
 from pyquery import PyQuery
+import utility_functions
 
 nlp = en_core_web_sm.load()
 
@@ -15,6 +16,8 @@ def extractEventDetails(pq):
 	# Use Spacy to find entities
 	doc = nlp(textContent)
 	print([(e.text, e.label_) for e in doc.ents])
+
+
 
 	# Use NLTK to tokenize contents
 	# words = nltk.word_tokenize(textContent)
@@ -37,12 +40,7 @@ def extractEventDetailsFromEmail(emailFile):
 	subject = email['header']['subject']
 	print('Subject:', subject)
 
-	# Email body
-	for body in email['body']:
-		# Parse HTML
-		html = body['content']
-		pq = PyQuery(html)
-		return extractEventDetails(pq)
+	return email['body'][0]['content']
 
 
 def extractEventDetailsFromURL(url):
@@ -75,6 +73,9 @@ if __name__ == '__main__':
 	if len(sys.argv) == 2:
 		fileName = sys.argv[1]
 		with open(fileName, 'rb') as emailFile:
-			extractEventDetails(emailFile)
+			email = extractEventDetailsFromEmail(emailFile)
+			email_dates = utility_functions.get_dates_spacy(email)
+			"""for date in email_dates:
+				print(date)"""
 	else:
 		testNLPCalendar()
