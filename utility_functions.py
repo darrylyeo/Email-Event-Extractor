@@ -17,16 +17,14 @@ def fix_space_tags(doc):
 
 
 def get_dates_spacy(email):
-    # dates = []
-    removeables = []
+    dates = []
+    labels = []
+    solo_dates = []
 
     nlp = spacy.load('en_core_web_md')
     nlp.add_pipe(fix_space_tags, name='fix-ner', before='ner')
     doc = nlp(email)
 
-    dates = [ent for ent in doc.ents if ent.label_ == 'DATE']
-    """for date in filter(lambda w: w.ent_type_ == 'DATE', doc):
-        dates.append(date)"""
     matcher = Matcher(nlp.vocab)
     pattern = [{"IS_ALPHA": True},
                {"IS_SPACE": True, "OP": "*"},
@@ -38,16 +36,34 @@ def get_dates_spacy(email):
     results = [max(list(group), key=lambda x: x[2]) for key, group in groupby(matched, lambda prop: prop[1])]
     for match_id, start, end in results:
         matched_span = doc[start:end]
-        print(matched_span)
+        dates.append(matched_span)
 
     for date in dates:
-        if date.end - date.start <= 3:
-            removeables.append(date)
+        s_token = date.start
+        s_char = date.start_char
+        text = doc.text
+        for i in range(len(text)):
+            if text[s_char-1] == '\n' or text[s_char-1] == '\t':
+                break
+            s_char -= 1
 
-    """for removable in removeables:
-        dates.remove(removable)"""
+        for i in range(len(doc)):
+            if doc[s_token - 1].idx < s_char:
+                break
+            s_token -= 1
 
-    return dates
+        labels.append(doc[s_token:date.start+1])
+
+    for date in dates:
+        start_token = date.start
+        for i in range(len(doc)):
+            if doc[start_token].ent_type_ == 'DATE':
+                break
+            start_token += 1
+
+        solo_dates.append(doc[start_token:date.end])
+
+    return [(labels[i], solo_dates[i]) for i in range(len(dates))]
 
 
 def get_dates_regexp(email):

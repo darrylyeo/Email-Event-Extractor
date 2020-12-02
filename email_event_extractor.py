@@ -75,7 +75,7 @@ if __name__ == '__main__':
 		with open(fileName, 'rb') as emailFile:
 			email = extractEventDetailsFromEmail(emailFile)
 			email_dates = utility_functions.get_dates_spacy(email)
-			"""for date in email_dates:
-				print(date)"""
+			for date in email_dates:
+				print(date)
 	else:
 		testNLPCalendar()
