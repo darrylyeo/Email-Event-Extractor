@@ -6,17 +6,20 @@ import utility_functions
 nlp = en_core_web_sm.load()
 
 
-def extractEventDetails(pq):
-	# Get plain text from HTML
-	textContent = pq('body').text()
-	print(textContent)
-	# textNodes = pq('body').contents().filter(lambda i, node: node.nodeType == 3)
-	# print(textNodes)
+def extractEventDetails(textContent):
+	# Get dates
+	dates = utility_functions.get_dates_spacy(textContent)
+	if len(dates) == 0:
+		print("No dates found")
+	for date in dates:
+		print(date)
 
-	# Use Spacy to find entities
-	doc = nlp(textContent)
-	print([(e.text, e.label_) for e in doc.ents])
-
+	# Get names
+	names = utility_functions.get_names(textContent)
+	if len(names) == 0:
+		print("No conference chair names found")
+	for name in names:
+		print('text:', name.text, 'label:', name.label_)
 
 
 	# Use NLTK to tokenize contents
@@ -25,11 +28,11 @@ def extractEventDetails(pq):
 
 	# Search for 'Call for Proposals' 'Call for Papers'
 
-	return {
-		'Event Name': '',
-		'Notfication Date': '',
-		'Conference Date': ''
-	}
+	# return {
+	# 	'Event Name': '',
+	# 	'Notfication Date': '',
+	# 	'Conference Date': ''
+	# }
 
 
 def extractEventDetailsFromEmail(emailFile):
@@ -40,12 +43,23 @@ def extractEventDetailsFromEmail(emailFile):
 	subject = email['header']['subject']
 	print('Subject:', subject)
 
-	return email['body'][0]['content']
+	# Get plain text from HTML
+	htmlContent = email['body'][0]['content']
+	return extractEventDetails(htmlContent)
+
+	# pq = PyQuery(htmlContent)
+	# textContent = pq('body').text()
+	# return extractEventDetails(textContent)
+
+	# textNodes = pq('body').contents().filter(lambda i, node: node.nodeType == 3)
+	# print(textNodes)
 
 
 def extractEventDetailsFromURL(url):
+	# Get plain text from HTML
 	pq = PyQuery(url=url)
-	return extractEventDetails(pq)
+	textContent = pq('body').text()
+	return extractEventDetails(textContent)
 
 
 def testNLPCalendar():
@@ -73,16 +87,6 @@ if __name__ == '__main__':
 	if len(sys.argv) == 2:
 		fileName = sys.argv[1]
 		with open(fileName, 'rb') as emailFile:
-			email = extractEventDetailsFromEmail(emailFile)
-			email_dates = utility_functions.get_dates_spacy(email)
-			if len(email_dates) == 0:
-				print("No dates found")
-			for date in email_dates:
-				print(date)
-			email_names = utility_functions.get_names(email)
-			if len(email_names) == 0:
-				print("No conference chair names found")
-			for name in email_names:
-				print('text:', name.text, 'label:', name.label_)
+			extractEventDetailsFromEmail(emailFile)
 	else:
 		testNLPCalendar()
