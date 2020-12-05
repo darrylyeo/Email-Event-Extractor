@@ -1,9 +1,6 @@
-import csv, eml_parser, en_core_web_sm, nltk, re, spacy, sys
-from collections import Counter
+import csv, eml_parser, nltk, sys
 from pyquery import PyQuery
 import utility_functions
-
-nlp = en_core_web_sm.load()
 
 
 def extractEventDetails(textContent):
