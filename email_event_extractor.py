@@ -74,7 +74,6 @@ if __name__ == '__main__':
 		fileName = sys.argv[1]
 		with open(fileName, 'rb') as emailFile:
 			email = extractEventDetailsFromEmail(emailFile)
-			print(type(email))
 			email_dates = utility_functions.get_dates_spacy(email)
 			if len(email_dates) == 0:
 				print("No dates found")
