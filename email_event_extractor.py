@@ -74,8 +74,16 @@ if __name__ == '__main__':
 		fileName = sys.argv[1]
 		with open(fileName, 'rb') as emailFile:
 			email = extractEventDetailsFromEmail(emailFile)
+			print(type(email))
 			email_dates = utility_functions.get_dates_spacy(email)
+			if len(email_dates) == 0:
+				print("No dates found")
 			for date in email_dates:
 				print(date)
+			email_names = utility_functions.get_names(email)
+			if len(email_names) == 0:
+				print("No conference chair names found")
+			for name in email_names:
+				print('text:', name.text, 'label:', name.label_)
 	else:
 		testNLPCalendar()

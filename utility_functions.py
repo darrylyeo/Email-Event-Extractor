@@ -24,6 +24,8 @@ def get_dates_spacy(email):
     nlp = spacy.load('en_core_web_md')
     nlp.add_pipe(fix_space_tags, name='fix-ner', before='ner')
     doc = nlp(email)
+    """dates = [ent for ent in doc.ents if ent.label_ == 'DATE']
+    print(dates)"""
 
     matcher = Matcher(nlp.vocab)
     pattern = [{"IS_ALPHA": True},
@@ -66,12 +68,36 @@ def get_dates_spacy(email):
     return [(labels[i], solo_dates[i]) for i in range(len(dates))]
 
 
-def get_dates_regexp(email):
-    date_pattern = r'((0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](19|20)\d\d)|' \
-                   r'((0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d)'
-    # mmdd_pattern = r'^(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](19|20)\d\d$'
-    # ddmm_pattern = r'^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$'
-    return [x for x in re.finditer(date_pattern, email)]
+def get_names(email):
+    names = []
+
+    nlp = spacy.load('en_core_web_md')
+    nlp.add_pipe(fix_space_tags, name='fix-ner', before='ner')
+    doc = nlp(email)
+
+    for ent in doc.ents:
+        if ent.label_ == 'PERSON':
+            is_chair = False
+            sent = ent.sent
+            for i in range(sent.start, sent.end):
+                if 'chair' in doc[i].text.lower():
+                    is_chair = True
+            for i in range(ent.start, ent.end):
+                if doc[i].text == 'Khosmood':
+                    is_chair = False
+
+            if is_chair:
+                names.append(ent)
+
+    return names
+
+
+def get_ents(email):
+    nlp = spacy.load('en_core_web_md')
+    nlp.add_pipe(fix_space_tags, name='fix-ner', before='ner')
+    doc = nlp(email)
+
+    return [ent for ent in doc.ents]
 
 
 if __name__ == '__main__':
@@ -79,7 +105,6 @@ if __name__ == '__main__':
     f = open(filename)
     raw = f.read()
 
-    dates_regexp = get_dates_regexp(raw)
     dates_spacy = get_dates_spacy(raw)
     print('returns')
     for date_out in dates_spacy:
